@@ -20,31 +20,35 @@ async function run() {
         const tourCollection = database.collection('popular_tours');
         const bookingCollection = database.collection('tour_booking');
 
+        // get all popular tour
         app.get('/popular-tours', async (req, res) => {
             const result = tourCollection.find({});
             const PopularTours = await result.toArray();
             res.send(PopularTours);
         });
 
+        // get a single popular tour
         app.get('/popular-tours/:id', async (req, res) => {
             const id = req.params.id;
             const result = await tourCollection.findOne({ _id: ObjectId(id) });
             res.send(result)
         });
 
+        // booking your tour
         app.post('/tour-booking', async (req, res) => {
             const bookingData = req.body;
-            // console.log(bookingData);
             const result = await bookingCollection.insertOne(bookingData);
             res.send(result);
         });
 
+        // display all user tour
         app.get('/tour-booking', async (req, res) => {
             const result = bookingCollection.find({});
             const allBooking = await result.toArray();
             res.json(allBooking);
         });
 
+        // display your tour
         app.get('/tour-booking/:email', async (req, res) => {
             const email = req.params.email;
             const result = bookingCollection.find({ email: email });
@@ -52,6 +56,7 @@ async function run() {
             res.json(findEmail);
         });
 
+        // delete your single tour
         app.delete('/tour-booking/:email/:id', async (req, res) => {
             const { email, id } = req.params;
             console.log(email, id);
@@ -62,6 +67,8 @@ async function run() {
             const remainingBooking = await bookingCollection.deleteOne(query);
             res.json(remainingBooking);
         });
+
+        // delete a tour booking from admin
         app.delete('/tour-booking/:id', async (req, res) => {
             const { id } = req.params;
             const query = {
@@ -71,6 +78,7 @@ async function run() {
             res.json(remainingBooking);
         });
 
+        // update approved status
         app.put('/tour-booking/:email/:id', async (req, res) => {
             const data = req.body;
             const { email, id } = req.params;
@@ -85,6 +93,7 @@ async function run() {
             res.json(result);
         })
 
+        // post a new tour
         app.post('/add-new-tour', async (req, res) => {
             const newTour = req.body;
             const result = await tourCollection.insertOne(newTour);
