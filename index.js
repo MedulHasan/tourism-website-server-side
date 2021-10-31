@@ -43,22 +43,54 @@ async function run() {
             const result = bookingCollection.find({});
             const allBooking = await result.toArray();
             res.json(allBooking);
-        })
+        });
+
         app.get('/tour-booking/:email', async (req, res) => {
             const email = req.params.email;
             const result = bookingCollection.find({ email: email });
             const findEmail = await result.toArray();
             res.json(findEmail);
-        })
+        });
+
         app.delete('/tour-booking/:email/:id', async (req, res) => {
             const { email, id } = req.params;
+            console.log(email, id);
             const query = {
                 email: email,
                 _id: ObjectId(id)
             };
             const remainingBooking = await bookingCollection.deleteOne(query);
             res.json(remainingBooking);
+        });
+        app.delete('/tour-booking/:id', async (req, res) => {
+            const { id } = req.params;
+            const query = {
+                _id: ObjectId(id)
+            };
+            const remainingBooking = await bookingCollection.deleteOne(query);
+            res.json(remainingBooking);
+        });
+
+        app.put('/tour-booking/:email/:id', async (req, res) => {
+            const data = req.body;
+            const { email, id } = req.params;
+            const query = {
+                email: email,
+                _id: ObjectId(id)
+            };
+            const updateDocument = {
+                $set: data
+            };
+            const result = await bookingCollection.updateOne(query, updateDocument, { upsert: true });
+            res.json(result);
         })
+
+        app.post('/add-new-tour', async (req, res) => {
+            const newTour = req.body;
+            const result = await tourCollection.insertOne(newTour);
+            res.json(result);
+        });
+
     }
     finally {
         // await client.close();
